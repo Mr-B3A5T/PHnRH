@@ -15,7 +15,8 @@ def cctv_honeypot_server():
 
         with open('network_data.csv', 'a') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(client_address)
+            writer.writerow(['IP Address', 'Port', 'Connection Type', 'Packet Details'])
+            writer.writerow([client_address[0], client_address[1], 'TCP', 'Packet details not recorded'])
 
         client_socket.close()
 
