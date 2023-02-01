@@ -1,17 +1,17 @@
-from flask import Blueprint, render_template, redirect, request
+import os
+from flask import Flask
+import cv2
+import datetime
+import csv
+from login import login
+from dashboard import dashboard
+from video_feed import video_feed_simulation
+from logging import log_information
 
-login = Blueprint('login', __name__)
+app = Flask(__name__)
+app.register_blueprint(login)
+app.register_blueprint(dashboard)
 
-@login.route('/')
-def index():
-    return render_template('login.html')
-
-@login.route('/login', methods=['POST'])
-def login_post():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    
-    if username == 'admin' and password == 'password':
-        return redirect('/dashboard')
-    else:
-        return redirect('/')
+if __name__ == "__main__":
+    video_feed_simulation()
+    app.run(debug=False)
