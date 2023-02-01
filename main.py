@@ -3,9 +3,10 @@ import logging
 from login import login
 from dashboard import dashboard
 from video_stream import video_stream
-from logging import log_event
 
-logging.basicConfig(filename='log.txt', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+def log_event(event_message):
+    logging.basicConfig(filename='log.txt', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+    logging.info(event_message)
 
 def main():
     # Login page
