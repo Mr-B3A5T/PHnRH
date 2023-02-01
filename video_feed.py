@@ -1,20 +1,18 @@
 import cv2
-import datetime
-import csv
 
-def video_feed_simulation():
-    video = cv2.VideoCapture("video.mp4")
-    
+def loop_video():
+    video_path = '/home/osboxes/Downloads/cctv.mp4'
+    video_capture = cv2.VideoCapture(video_path)
+
     while True:
-        ret, frame = video.read()
-        if not ret:
-            video.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            continue
-        
-        cv2.imshow("Simulated video feed", frame)
-        
-        if cv2.waitKey(25) & 0xFF == ord('q'):
+        ret, frame = video_capture.read()
+        if ret:
+            cv2.imshow('Fake CCTV video', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        
-    video.release()
+
+    video_capture.release()
     cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    loop_video()
