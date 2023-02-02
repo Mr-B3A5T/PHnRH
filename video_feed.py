@@ -14,23 +14,30 @@ def cctv_honeypot_server():
     server_socket.listen(1)
     print("CCTV honeypot server is running on %s:%s" % server_address)
 
-    # Load the fake video from a local file
-    video = cv2.VideoCapture('/home/osboxes/Downloads/cctv.mp4')
+    # Open the video file
+    video = cv2.VideoCapture("/home/osboxes/Downloads/cctv.mp4")
 
     while True:
         # Accept incoming connection
         client_socket, client_address = server_socket.accept()
         print("Accepted connection from %s:%s" % client_address)
 
-        # Read frames from the fake video
-        ret, frame = video.read()
-        while ret:
-            # Send the frame to the client
-            client_socket.sendall(frame.tobytes())
+        # Send a fake CCTV video stream
+        while True:
             ret, frame = video.read()
+            if not ret:
+                video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                continue
+
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            if not ret:
+                continue
+
+            client_socket.sendall(jpeg.tobytes())
 
         # Close the connection
         client_socket.close()
+        video.release()
 
 if __name__ == '__main__':
     cctv_honeypot_server()
