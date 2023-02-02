@@ -1,8 +1,20 @@
 import socket
 import csv
+import time
+import mimetypes
 
-# Create a fake CCTV server
-def cctv_honeypot_server():
+def get_mimetype(filename):
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+def send_video(client_socket, filename):
+    with open(filename, 'rb') as f:
+        video = f.read()
+        client_socket.sendall(b'HTTP/1.0 200 OK\r\n')
+        client_socket.sendall(f'Content-Type: {get_mimetype(filename)}\r\n'.encode())
+        client_socket.sendall(b'\r\n')
+        client_socket.sendall(video)
+
+def cctv_honeypot_server(video_filename):
     # Create a socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -19,21 +31,17 @@ def cctv_honeypot_server():
         # Accept incoming connection
         client_socket, client_address = server_socket.accept()
         print("Accepted connection from %s:%s" % client_address)
-        
-        # Log the connection details
-        with open('/home/osboxes/Desktop/Honeypot/HoneyAccessLog.csv', 'a') as logfile:
-            writer = csv.writer(logfile)
-            writer.writerow([client_address[0], client_address[1], 'TCP'])
 
-        # Read the video from the local directory
-        with open('/home/osboxes/Downloads/cctv.mp4', 'rb') as video_file:
-            video_stream = video_file.read()
+        # Send the fake video
+        send_video(client_socket, video_filename)
 
-        # Send the video stream
-        client_socket.sendall(video_stream)
+        # Log the connection information
+        with open('/home/osboxes/Desktop/Honeypot/HoneyAccessLog.csv', 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S"), client_address[0], client_address[1]])
 
         # Close the connection
         client_socket.close()
 
 if __name__ == '__main__':
-    cctv_honeypot_server()
+    cctv_honeypot_server('/home/osboxes/Downloads/cctv.mp4')
