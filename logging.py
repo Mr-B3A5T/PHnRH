@@ -1,7 +1,8 @@
 import socket
 import csv
 
-def packet_capture():
+# Logger for incoming connection data
+def connection_logger():
     # Create a socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -12,23 +13,22 @@ def packet_capture():
 
     # Listen for incoming connections
     server_socket.listen(1)
-    print("Packet capture server is running on %s:%s" % server_address)
+    print("Logger is running on %s:%s" % server_address)
 
-    # Create a CSV file to store network access packet details
-    with open("/home/osboxes/Desktop/Honeypot/HoneyAccessLog.csv", "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["IP Address", "Port", "Connection Type"])
+    with open("/home/osboxes/Desktop/Honeypot/HoneyAccessLog.csv", "w", newline="") as log_file:
+        log_writer = csv.writer(log_file)
+        log_writer.writerow(["IP", "PORT", "TYPE"])
 
         while True:
             # Accept incoming connection
             client_socket, client_address = server_socket.accept()
             print("Accepted connection from %s:%s" % client_address)
-
-            # Record network access packet details
-            writer.writerow(list(client_address) + ["TCP"])
+            
+            # Log the incoming connection data
+            log_writer.writerow([client_address[0], client_address[1], "TCP"])
 
             # Close the connection
             client_socket.close()
 
 if __name__ == '__main__':
-    packet_capture()
+    connection_logger()
